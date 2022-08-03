@@ -184,7 +184,7 @@ class AttentionBlock(nn.Module):
         # return x
 
 
-def img_to_patch(x, patch_size, flatten_channels=True):
+def img_to_patch(x: torch.Tensor, patch_size: int, flatten_channels: bool = True):
     """
     Inputs:
         x - torch.Tensor representing the image of shape [B, C, H, W]

@@ -6,8 +6,8 @@ from torchvision.datasets import ImageFolder
 from torchvision.datasets.folder import default_loader
 from torchvision.datasets.utils import check_integrity, download_and_extract_archive
 
-ROOT_TMP = "/scratch/tmp/mhidalgo/data/"
-# ROOT_TMP = "data"
+# ROOT_TMP = "/scratch/tmp/mhidalgo/data/"
+ROOT_TMP = "data"
 URL = "https://madm.dfki.de/files/sentinel/EuroSAT.zip"
 MD5 = "c8fa014336c82ac7804f0398fcb19387"
 SUBDIR = "2750"

@@ -9,8 +9,8 @@ from torchvision import transforms
 from tqdm import tqdm, trange
 
 from dataset import EuroSAT, random_split
-from model import VisionTransformer
-from predict import predict
+from predict import predict, get_vit_EuroSAT
+from config import IMAGE_SIZE
 
 
 class State:
@@ -33,37 +33,49 @@ def calc_normalization(train_dl: torch.utils.data.DataLoader):
 
 
 def main(args):
+    image_size: int = IMAGE_SIZE
+    height = image_size         # H
+    width = image_size          # W
+
     transform = transforms.Compose([
         transforms.RandomHorizontalFlip(),
-        transforms.RandomResizedCrop((32, 32), scale=(0.8, 1.0), ratio=(0.9, 1.1)),
+        transforms.RandomResizedCrop((height, width), scale=(0.8, 1.0), ratio=(0.9, 1.1)),
         # transforms.RandomVerticalFlip(),
         transforms.ToTensor(),
     ])
     dataset = EuroSAT(transform=transform)
-    trainval, test_ds = random_split(dataset, 0.9, random_state=42)
-    train_ds, val_ds = random_split(trainval, 0.9, random_state=7)
+    train_val, test_ds = random_split(dataset, 0.9, random_state=42)
+    train_ds, val_ds = random_split(train_val, 0.9, random_state=7)
 
-    # load train dataset with computed normalization
+
+    # We define a set of data loaders that we can use for various purposes later.
     train_dl = torch.utils.data.DataLoader(
         train_ds,
         batch_size=args.batch_size,
         shuffle=True,
         num_workers=args.workers,
-        pin_memory=True,
+        drop_last=True,
+        pin_memory=True
     )
+
+    # load train dataset with computed normalization
     mean, std = calc_normalization(train_dl)
     dataset.transform.transforms.append(transforms.Normalize(mean, std))
     State.normalization = {'mean': mean, 'std': std}
 
     # load val dataset
     val_dl = torch.utils.data.DataLoader(
-        val_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=True
+        val_ds,
+        batch_size=image_size,
+        shuffle=True,
+        num_workers=args.workers,
+        drop_last=False,
+        pin_memory=True
     )
 
     # create/load model, changing the head for our number of classes
-    # model = models.resnet50(pretrained=args.pretrained)
-    model = VisionTransformer(embed_dim=256, hidden_dim=512, num_heads=8, num_layers=6, patch_size=4, num_channels=3,
-                              num_patches=64, num_classes=10, dropout=0.2)
+    model = get_vit_EuroSAT()
+
     # if args.pretrained:
     #     for param in model.parameters():
     #         param.requires_grad = False
@@ -81,7 +93,7 @@ def main(args):
     originals = images * std.view(3, 1, 1) + mean.view(3, 1, 1)
     State.writer.add_images('images/original', originals, 0)
     State.writer.add_images('images/normalized', images, 0)
-    State.writer.add_graph(model, images)
+    # State.writer.add_graph(model, images)
 
     for epoch in trange(args.epochs, desc="Epochs"):
         train_epoch(train_dl, model, loss, optimizer, epoch, args)
@@ -133,7 +145,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-j', '--workers', default=4, type=int, metavar='N', help="Number of workers for the DataLoader",
     )
-    parser.add_argument('--epochs', default=15, type=int, metavar='N', help="Epochs")
+    parser.add_argument('--epochs', default=7, type=int, metavar='N', help="Epochs")
     parser.add_argument('-b', '--batch-size', default=128, type=int, metavar='N', help="Batch size")
     parser.add_argument(
         '--lr', '--learning-rate', default=0.0001, type=float, metavar='LR', help="Learning rate"

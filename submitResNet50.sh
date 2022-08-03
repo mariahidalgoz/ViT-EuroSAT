@@ -9,9 +9,9 @@
 #SBATCH --mem=10G                   # how much memory is needed per node (units can be: K, M, G, T)
 #SBATCH --partition=gpu2080          # on which partition to submit the job
 #SBATCH --time=12:00:00             # the max wallclock time (time limit your job will run)
-#SBATCH --output=output.dat         # the file where output is written to (stdout & stderr)
-#SBATCH --mail-type=FAIL             # receive an email when your job starts, finishes normally or is aborted
-#SBATCH --mail-user=__user__@uni-muenster.de # your mail address
+#SBATCH --output=outputResNet.dat      # the file where output is written to (stdout & stderr)
+#SBATCH --mail-type=ALL             # receive an email when your job starts, finishes normally or is aborted
+#SBATCH --mail-user=mhidalgo@uni-muenster.de # your mail address
 #SBATCH --nice=100
  
 module purge

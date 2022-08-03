@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from dataset import EuroSAT, ImageFiles, random_split
 from model import VisionTransformer
+from config import IMAGE_SIZE, PATCH_SIZE, NUM_HEADS, NUM_LAYERS
 
 # to be sure that we don't mix them, use this instead of a tuple
 TestResult = namedtuple('TestResult', 'truth predictions')
@@ -63,17 +64,52 @@ def report(result: TestResult, label_names):
     print(confusion)
 
 
+def get_pretrained_model_EuroSAT(best_weights: str = '../weights/best.pt'):
+    model_saved = torch.load(best_weights, map_location='cpu')
+    print("ViT bias numel", model_saved['model_state']['mlp_head.1.bias'].numel())
+    return model_saved
+
+
+def get_transform_EuroSAT(image_size: int = IMAGE_SIZE):
+    tr = transforms.Compose([
+        transforms.Resize((image_size, image_size)),
+        transforms.ToTensor()
+    ])
+    return tr
+
+
+def get_vit_EuroSAT(image_size: int = IMAGE_SIZE, patch_size: int = PATCH_SIZE, num_channels: int = 3, num_classes: int = 10,
+                    embed_dim: int = 256, hidden_dim: int = 512, num_heads: int = NUM_HEADS, num_layers: int = NUM_LAYERS,
+                    dropout: float = 0.2):
+    # image_size: "The training resolution is 224"  # 32
+    # P - patch_size
+    # C - num_channels
+    # num_classes: "1000 classes in ImageNet"
+
+    height = image_size  # H
+    width = image_size  # W
+    num_patches = (height * width) // (patch_size ** 2)  # N
+    # num_patches = 64
+    # embed_dim = image_size
+
+    model = VisionTransformer(embed_dim=embed_dim, hidden_dim=hidden_dim,
+                              num_heads=num_heads, num_layers=num_layers,
+                              patch_size=patch_size, num_channels=num_channels,
+                              num_patches=num_patches, num_classes=num_classes, dropout=dropout)
+    return model
+
+
 def main(args):
-    save = torch.load(args.model, map_location='cpu')
-    normalization = save['normalization']
-    print("TEST MAFE bias numel", save['model_state']['mlp_head.1.bias'].numel())
-    # model = models.resnet50(num_classes=save['model_state']['fc.bias'].numel())
-    model = VisionTransformer(embed_dim=256, hidden_dim=512, num_heads=8, num_layers=6, patch_size=4, num_channels=3,
-                              num_patches=64, num_classes=10, dropout=0.2)
-    model.load_state_dict(save['model_state'])
+    model_saved = get_pretrained_model_EuroSAT(args.model)
+
+    model = get_vit_EuroSAT()
+    model.load_state_dict(model_saved['model_state'])
     model = model.to(args.device)
 
-    tr = transforms.Compose([transforms.Resize((32, 32)), transforms.ToTensor(), transforms.Normalize(**normalization)])
+    tr = get_transform_EuroSAT()
+    normalization = model_saved['normalization']
+    tr.transforms.append(transforms.Normalize(**normalization))
+
     if args.files:
         test = ImageFiles(args.files, transform=tr)
     else:
@@ -106,7 +142,7 @@ if __name__ == '__main__':
         metavar='N',
         help="Number of workers for the DataLoader",
     )
-    parser.add_argument('-b', '--batch-size', default=128, type=int, metavar='N')
+    parser.add_argument('-b', '--batch-size', default=128, type=int, metavar='N')  # "The ViT paper states the use of a batch size of 4096 for training"
     parser.add_argument('files', nargs='*', help="Files to run prediction on")
     args = parser.parse_args()
     args.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
