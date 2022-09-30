@@ -1,0 +1,10 @@
+Annual Crop
+Forest
+Herbaceous Vegetation
+Highway
+Industrial
+Pasture
+Permanent Crop
+Residential
+River
+Sea Lake

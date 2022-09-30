@@ -22,5 +22,4 @@ source $CONDA_BASE/etc/profile.d/conda.sh
 conda deactivate
 conda activate /home/m/mhidalgo/envs/mhidalgo
 
-python ResNet50/train.py
-
+python architectures/ResNet50/train.py
