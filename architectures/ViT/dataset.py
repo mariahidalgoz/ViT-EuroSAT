@@ -1,4 +1,5 @@
 import os
+
 import torch
 from torch.utils.data import Dataset
 from torchvision.datasets import ImageFolder
@@ -24,7 +25,6 @@ class EuroSAT(ImageFolder):
         self.download(root)
         root = os.path.join(root, SUBDIR)
         super().__init__(root, transform=transform, target_transform=target_transform)
-
 
     @staticmethod
     def download(root):

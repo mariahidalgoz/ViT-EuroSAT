@@ -3,8 +3,8 @@ WEIGHTS_DIR = 'weights/ResNet50'
 RUNS_DIR = 'runs/ResNet50'
 
 # Paths to download training data
-LOCAL_DIR = 'data'  # Path for your local machine
-# LOCAL_DIR = '/scratch/tmp/mhidalgo/data/'  # Change to your Palma dir
+# LOCAL_DIR = 'data'  # Path for your local machine
+LOCAL_DIR = '/scratch/tmp/mhidalgo/data/'  # Change to your Palma dir
 
 # EuroSAT Download data
 URL_DOWNLOAD = 'https://madm.dfki.de/files/sentinel/EuroSAT.zip'
