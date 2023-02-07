@@ -1,10 +1,12 @@
 import argparse
-import torch
 from collections import namedtuple
+
+import torch
 from torch import nn
 from torchvision import transforms
 from tqdm import tqdm
 
+from config import ROOT_PATH, WEIGHTS_DIR
 from dataset import EuroSAT, ImageFiles, random_split
 from utilsEuroSAT import get_pretrained_model_EuroSAT, get_vit_EuroSAT, get_transform_EuroSAT
 
@@ -62,7 +64,8 @@ def report(result: TestResult, label_names):
 
 
 def main(args):
-    model_saved = get_pretrained_model_EuroSAT(args.image_size, args.patch_size)
+    model_dir = f'{ROOT_PATH}{WEIGHTS_DIR}/image_{args.image_size}/patch_{args.patch_size}/best.pt'
+    model_saved = get_pretrained_model_EuroSAT(model_dir)
 
     model = get_vit_EuroSAT(args.image_size, args.patch_size)
     model.load_state_dict(model_saved['model_state'])
@@ -101,7 +104,8 @@ if __name__ == '__main__':
         metavar='N',
         help="Number of workers for the DataLoader",
     )
-    parser.add_argument('-b', '--batch-size', default=128, type=int, metavar='N')  # "The ViT paper states the use of a batch size of 4096 for training"
+    parser.add_argument('-b', '--batch-size', default=128, type=int,
+                        metavar='N')  # "The ViT paper states the use of a batch size of 4096 for training"
     parser.add_argument(
         '-is', '--image-size', default=64, type=int, help="Image size of the model to use for prediction"
     )

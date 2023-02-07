@@ -19,9 +19,8 @@ BATCH_SIZE = 128
 WORKERS = 4
 
 
-def get_pretrained_model_EuroSAT(image_size: int, patch_size: int):
-    best_weights = f'{WEIGHTS_DIR}/image_{image_size}/patch_{patch_size}/best.pt'
-    model_saved = torch.load(best_weights, map_location='cpu')
+def get_pretrained_model_EuroSAT(best_weights_file: str):
+    model_saved = torch.load(best_weights_file, map_location='cpu')
     print("ViT bias numel", model_saved['model_state']['mlp_head.1.bias'].numel())
     return model_saved
 

@@ -6,7 +6,7 @@ from torchvision.datasets import ImageFolder
 from torchvision.datasets.folder import default_loader
 from torchvision.datasets.utils import check_integrity, download_and_extract_archive
 
-from config import LOCAL_DIR, URL_DOWNLOAD, MD5, SUBDIR, FILE
+from config import DATA_DIR, URL_DOWNLOAD, MD5, SUBDIR, FILE
 
 
 def random_split(dataset, ratio=0.9, random_state=None):
@@ -21,7 +21,7 @@ def random_split(dataset, ratio=0.9, random_state=None):
 
 
 class EuroSAT(ImageFolder):
-    def __init__(self, root=LOCAL_DIR, transform=None, target_transform=None):
+    def __init__(self, root=DATA_DIR, transform=None, target_transform=None):
         self.download(root)
         root = os.path.join(root, SUBDIR)
         super().__init__(root, transform=transform, target_transform=target_transform)

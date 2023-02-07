@@ -13,6 +13,8 @@ jupyterlab = "*"
 opencv-python = "*"
 matplotlib = "*"
 certifi = "*"
+scikit-learn = "*"
+ipywidgets = "*"
 
 [dev-packages]
 

@@ -10,7 +10,7 @@ from tqdm import tqdm, trange
 
 from dataset import EuroSAT, random_split
 from predict import predict, get_vit_EuroSAT
-from config import WEIGHTS_DIR, RUNS_DIR
+from config import WEIGHTS_DIR, RUNS_DIR, ROOT_PATH
 
 
 class State:
@@ -33,9 +33,8 @@ def calc_normalization(train_dl: torch.utils.data.DataLoader):
 
 
 def main(args):
-
-    root_weights_image_size = f'{WEIGHTS_DIR}/image_{args.image_size}/patch_{args.patch_size}'
-    root_runs_image_size = f'{RUNS_DIR}/image_{args.image_size}/patch_{args.patch_size}'
+    root_weights_image_size = f'{ROOT_PATH}{WEIGHTS_DIR}/image_{args.image_size}/patch_{args.patch_size}'
+    root_runs_image_size = f'{ROOT_PATH}{RUNS_DIR}/image_{args.image_size}/patch_{args.patch_size}'
     os.makedirs(root_weights_image_size, exist_ok=True)
 
     height = args.image_size         # H
@@ -150,7 +149,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-j', '--workers', default=4, type=int, metavar='N', help="Number of workers for the DataLoader",
     )
-    parser.add_argument('--epochs', default=60, type=int, metavar='N', help="Epochs")
+    parser.add_argument('--epochs', default=5, type=int, metavar='N', help="Epochs")
     parser.add_argument('-b', '--batch-size', default=128, type=int, metavar='N', help="Batch size")
     parser.add_argument(
         '--lr', '--learning-rate', default=0.0001, type=float, metavar='LR', help="Learning rate"
